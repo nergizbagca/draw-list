@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
@@ -21,13 +21,15 @@ type Draw = {
 
 export default function DrawDetail() {
   const router = useRouter();
-  const pathname = usePathname();
+  const params = useParams();
+  const id = params?.id as string;
+
   const [draw, setDraw] = useState<Draw | null>(null);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState(""); 
-  const [filteredGroups, setFilteredGroups] = useState<Draw['groups']>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredGroups, setFilteredGroups] = useState<Draw["groups"]>([]);
 
-  const id = pathname.split("/").pop() || "";
+
   useEffect(() => {
     const storedDraws = localStorage.getItem("draw");
     if (storedDraws) {
@@ -36,21 +38,20 @@ export default function DrawDetail() {
 
       if (found) {
         setDraw(found);
-        setFilteredGroups(found.groups); 
+        setFilteredGroups(found.groups);
       }
-    }
 
-    setLoading(false);
+      setLoading(false);
+    }
   }, [id]);
 
   const filterGroups = () => {
     if (!draw) return [];
-
-    return draw.groups.filter((group) => {
-      return group.persons.some(person =>
+    return draw.groups.filter((group) =>
+      group.persons.some((person) =>
         person.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    });
+      )
+    );
   };
 
   useEffect(() => {
@@ -59,7 +60,7 @@ export default function DrawDetail() {
     } else {
       setFilteredGroups(filterGroups());
     }
-  }, [searchTerm, draw]); 
+  }, [searchTerm, draw]);
 
   const handleBack = () => {
     router.back();
@@ -96,7 +97,6 @@ export default function DrawDetail() {
           </TableBody>
         </Table>
 
-        {}
         <div className="mt-6 mb-4">
           <input
             type="text"
@@ -111,36 +111,34 @@ export default function DrawDetail() {
           <h2 className="text-xl font-semibold">Gruplar</h2>
           {loading ? (
             <Skeleton className="h-6 w-40 mt-2" />
+          ) : filteredGroups.length === 0 ? (
+            <div>Arama sonucu bulunamadı.</div>
           ) : (
-            filteredGroups.length === 0 ? (
-              <div>Arama sonucu bulunamadı.</div>
-            ) : (
-              filteredGroups.map((group) => (
-                <div key={group.id} className="mt-4">
-                  <h3 className="font-semibold text-lg">{group.name}</h3>
-                  <Table className="mt-2">
-                    <TableBody>
-                      <TableRow>
-                        <TableCell className="font-semibold">Kişiler</TableCell>
-                        <TableCell>
-                          {group.persons.length > 0
-                            ? group.persons.join(", ")
-                            : "Henüz eklenmedi"}
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-semibold">Daireler</TableCell>
-                        <TableCell>
-                          {group.apartments.length > 0
-                            ? group.apartments.join(", ")
-                            : "Henüz eklenmedi"}
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
-              ))
-            )
+            filteredGroups.map((group) => (
+              <div key={group.id} className="mt-4">
+                <h3 className="font-semibold text-lg">{group.name}</h3>
+                <Table className="mt-2">
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="font-semibold">Kişiler</TableCell>
+                      <TableCell>
+                        {group.persons.length > 0
+                          ? group.persons.join(", ")
+                          : "Henüz eklenmedi"}
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-semibold">Daireler</TableCell>
+                      <TableCell>
+                        {group.apartments.length > 0
+                          ? group.apartments.join(", ")
+                          : "Henüz eklenmedi"}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            ))
           )}
         </div>
       </div>

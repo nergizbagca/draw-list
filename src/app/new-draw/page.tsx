@@ -101,7 +101,6 @@ export default function NewDrawPage() {
           className="border p-2 rounded w-full mb-4"
         />
 
-        {}
         <div className="mb-4">
           <h2 className="font-bold">Kişileri Ekleyin</h2>
           {persons.map((person, index) => (
