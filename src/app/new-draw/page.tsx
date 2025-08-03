@@ -1,17 +1,10 @@
 "use client";
 
+import { slugify } from "@/lib/utils";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-
-function slugify(str: string): string {
-  return str
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w-]+/g, "");
-}
 
 export default function NewDrawPage() {
   const [name, setName] = useState("");
@@ -101,6 +94,7 @@ export default function NewDrawPage() {
           className="border p-2 rounded w-full mb-4"
         />
 
+        {}
         <div className="mb-4">
           <h2 className="font-bold">Kişileri Ekleyin</h2>
           {persons.map((person, index) => (
