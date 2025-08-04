@@ -23,6 +23,8 @@ export default function GroupSelector({ groups, onSelect, selectedGroupId }: Pro
         const total = group.persons.length;
         const remaining = total - matched;
 
+        const displayName = group.name.replace(/blok/i, "Daire");
+
         return (
           <div
             key={group.id}
@@ -33,7 +35,7 @@ export default function GroupSelector({ groups, onSelect, selectedGroupId }: Pro
             }`}
             onClick={() => onSelect(group)}
           >
-            <h3 className="text-lg font-semibold">{group.name}</h3>
+            <h3 className="text-lg font-semibold">{displayName}</h3>
             <p>Toplam: {total}</p>
             <p>Eşleştirilen: {matched}</p>
             <p>Kalan: {remaining}</p>

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import GroupSelector from "@/components/group/GroupSelector";
 
-
 export default function DrawDetail() {
   const router = useRouter();
   const params = useParams();
@@ -51,7 +50,9 @@ export default function DrawDetail() {
 
         {selectedGroup && (
           <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-2">Seçilen Grup: {selectedGroup.name}</h3>
+            <h3 className="text-lg font-semibold mb-2">
+              Seçilen Grup: {selectedGroup.name.replace(/blok/i, "Daire")}
+            </h3>
             <p><strong>Kişi Sayısı:</strong> {selectedGroup.persons.length}</p>
             <p><strong>Daire Sayısı:</strong> {selectedGroup.apartments.length}</p>
           </div>
