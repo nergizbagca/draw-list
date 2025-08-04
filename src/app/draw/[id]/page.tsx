@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import GroupSelector from "@/components/group/GroupSelector";
+import PersonSelector from "@/components/person/PersonSelector";
 
 export default function DrawDetail() {
   const router = useRouter();
@@ -24,37 +25,48 @@ export default function DrawDetail() {
     }
   }, [id]);
 
-  if (!draw) return <div>Kura bulunamadı.</div>;
+  if (!draw) return <div className="p-4 text-sm">Kura bulunamadı.</div>;
 
   return (
-    <div className="container mx-auto px-4">
-      <div className="mx-auto w-full max-w-screen-sm px-4 py-6">
-        <div className="flex gap-2 mb-4">
-          <Button
-            variant="ghost"
-            onClick={() => router.back()}
-            className="flex items-center gap-2 cursor-pointer"
-          >
-            <ArrowLeft size={16} /> Geri
-          </Button>
+    <div className="container mx-auto px-4 py-6 max-w-screen-xl">
+      <div className="mb-4">
+        <Button
+          variant="ghost"
+          onClick={() => router.back()}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft size={16} /> Geri
+        </Button>
+      </div>
+
+      <h1 className="text-2xl font-bold mb-2">{draw.name}</h1>
+      <h2 className="text-lg font-semibold mb-4 text-muted-foreground">
+        Eşleştirmek istediğiniz grubu seçin
+      </h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Grup Seçimi */}
+        <div className="border rounded-lg p-4 shadow-sm bg-white">
+          <h3 className="text-md font-semibold mb-2">Grup Seç</h3>
+          <GroupSelector
+            groups={draw.groups}
+            onSelect={(g) => setSelectedGroup(g)}
+            selectedGroupId={selectedGroup?.id}
+          />
         </div>
-
-        <h1 className="text-3xl font-bold mb-4">{draw.name}</h1>
-        <h2 className="text-xl font-semibold mb-2">Grup Seçimi</h2>
-
-        <GroupSelector
-          groups={draw.groups}
-          onSelect={(g) => setSelectedGroup(g)}
-          selectedGroupId={selectedGroup?.id}
-        />
-
+        
         {selectedGroup && (
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-2">
-              Seçilen Grup: {selectedGroup.name.replace(/blok/i, "Daire")}
-            </h3>
-            <p><strong>Kişi Sayısı:</strong> {selectedGroup.persons.length}</p>
-            <p><strong>Daire Sayısı:</strong> {selectedGroup.apartments.length}</p>
+          <div className="border rounded-lg p-4 shadow-sm bg-white">
+            <p className="text-sm font-medium mb-2">
+              {selectedGroup.name.replace(/blok/i, "Daire")} — {selectedGroup.persons.length} kişi / {selectedGroup.apartments.length} daire
+            </p>
+
+            <PersonSelector
+              persons={selectedGroup.persons.map((id: string) => ({
+                id,
+                fullName: id, 
+              }))}
+            />
           </div>
         )}
       </div>
