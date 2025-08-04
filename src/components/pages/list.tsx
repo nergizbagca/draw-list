@@ -35,58 +35,32 @@ type Draw = {
 };
 
 export function List() {
-  const [draw, setDraw] = useState<Draw[]>([]);
+  const [draws, setDraws] = useState<Draw[]>([]);
   const [loading, setLoading] = useState(true);
-  const [skeletonRowCount, setSkeletonRowCount] = useState(2);
 
-  const cleanDraws = (data: any[]): Draw[] => {
-    return data.map((draw) => ({
-      ...draw,
-      name: draw.name?.replace(/\t/g, " "),
-      groups: draw.groups.map((group: any) => ({
-        ...group,
-        name: group.name?.replace(/\t/g, " "),
-        persons: group.persons.map((p: string) => p.replace(/\t/g, " ")),
-        apartments: group.apartments.map((a: string) => a.replace(/\t/g, " ")),
-      })),
-    }));
-  };
+  const router = useRouter();
 
   useEffect(() => {
     const storedDraws = localStorage.getItem("draw");
     if (storedDraws) {
-      const parsedDraws = JSON.parse(storedDraws);
-      const cleaned = cleanDraws(parsedDraws);
-      setDraw(cleaned);
-      setSkeletonRowCount(cleaned.length || 2);
-      setLoading(false);
-    } else {
-      fetch("/mock_draws.json")
-        .then((res) => res.json())
-        .then((data) => {
-          const cleaned = cleanDraws(data);
-          localStorage.setItem("draw", JSON.stringify(cleaned));
-          setDraw(cleaned);
-          setSkeletonRowCount(cleaned.length || 2);
-        })
-        .catch((error) => {
-          console.error("Dummy veri yüklenemedi:", error);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
+      try {
+        const parsedDraws = JSON.parse(storedDraws) as Draw[];
+        setDraws(parsedDraws);
+      } catch (error) {
+        console.error("Veri çözümleme hatası:", error);
+      }
     }
+    setLoading(false);
   }, []);
 
-  const router = useRouter();
+  const handleDelete = (id: string) => {
+    const updated = draws.filter((item) => item.id !== id);
+    setDraws(updated);
+    localStorage.setItem("draw", JSON.stringify(updated));
+  };
+
   const handleAddClick = () => {
     router.push("/new-draw");
-  };
-  
-  const handleDelete = (id: string) => {
-    const updatedDraws = draw.filter((item) => item.id !== id);
-    setDraw(updatedDraws);
-    localStorage.setItem("draw", JSON.stringify(updatedDraws));
   };
 
   return (
@@ -104,80 +78,78 @@ export function List() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {loading
-            ? Array.from({ length: skeletonRowCount }).map((_, index) => (
-                <TableRow key={index} className="h-12">
+          {loading ? (
+            <TableRow>
+              <TableCell colSpan={5}>
+                <Skeleton className="h-4 w-full" />
+              </TableCell>
+            </TableRow>
+          ) : (
+            draws.map((item) => {
+              const totalApartments = item.groups.reduce(
+                (sum, g) => sum + g.apartments.length,
+                0
+              );
+              const totalPersons = item.groups.reduce(
+                (sum, g) => sum + g.persons.length,
+                0
+              );
+
+              const isDummy = item.id === "haziran-2025";
+              const groupName = isDummy
+                ? "Arnavutköy"
+                : item.groups[0]?.name ?? "-";
+
+              return (
+                <TableRow key={item.id}>
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell>{groupName}</TableCell>
                   <TableCell>
-                    <Skeleton className="h-4 w-[120px]" />
+                    {totalApartments} daire / {totalPersons} kişi
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-4 w-[80px]" />
+                    <Button
+                      variant="ghost"
+                      onClick={() => router.push(`/draw/${item.id}`)}
+                    >
+                      Detaya Git{" "}
+                      <ChevronRightIcon className="ml-1 h-4 w-4" />
+                    </Button>
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-4 w-[100px]" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-[60px]" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-[60px]" />
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="ghost" className="text-red-500">
+                          Sil
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Kura Sil</DialogTitle>
+                        </DialogHeader>
+                        <p>Bu kurayı silmek istediğinize emin misiniz?</p>
+                        <DialogFooter className="flex justify-end gap-2">
+                          <DialogClose asChild>
+                            <Button variant="outline">Vazgeç</Button>
+                          </DialogClose>
+                          <Button
+                            variant="destructive"
+                            onClick={() => handleDelete(item.id)}
+                          >
+                            Evet, Sil
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   </TableCell>
                 </TableRow>
-              ))
-            : draw.map((item) =>
-                item.groups.map((group) => (
-                  <TableRow key={`${item.id}-${group.id}`}>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>{group.name}</TableCell>
-                    <TableCell>
-                      {group.apartments.length} daire / {group.persons.length} kişi
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        className="cursor-pointer gap-1"
-                        onClick={() => router.push(`/draw/${item.id}`)}
-                      >
-                        Detaya git <ChevronRightIcon />
-                      </Button>
-                    </TableCell>
-                    <TableCell>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="cursor-pointer text-red-500"
-                          >
-                            Sil
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent aria-describedby="dialog-description">
-                          <DialogHeader>
-                            <DialogTitle id="dialog-description">
-                              Kurayı silmek istediğinize emin misiniz?
-                            </DialogTitle>
-                          </DialogHeader>
-                          <DialogFooter className="flex justify-end gap-2">
-                            <DialogClose asChild>
-                              <Button variant="outline">Vazgeç</Button>
-                            </DialogClose>
-                            <Button
-                              variant="destructive"
-                              onClick={() => handleDelete(item.id)}
-                            >
-                              Evet, Sil
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
+              );
+            })
+          )}
         </TableBody>
       </Table>
 
-      <div className="flex flex-wrap items-center gap-2 md:flex-row">
+      <div className="flex items-center gap-2">
         <Button onClick={handleAddClick}>Kura Ekle</Button>
       </div>
     </div>
