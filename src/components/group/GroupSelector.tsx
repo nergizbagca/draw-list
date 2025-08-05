@@ -1,13 +1,7 @@
 "use client";
-import React from "react"; 
 
-type Group = {
-  id: string;
-  name: string;
-  persons: string[];
-  apartments: string[];
-  matches?: { person: string; apartment: string }[];
-};
+import React from "react";
+import type { Group } from "@/lib/types"; 
 
 type Props = {
   groups: Group[];
@@ -15,7 +9,11 @@ type Props = {
   selectedGroupId?: string;
 };
 
-export default function GroupSelector({ groups, onSelect, selectedGroupId }: Props) {
+export default function GroupSelector({
+  groups,
+  onSelect,
+  selectedGroupId,
+}: Props) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       {groups.map((group) => {

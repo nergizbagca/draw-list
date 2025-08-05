@@ -10,12 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-type Person = {
-  id: string;
-  fullName: string;
-  apartment: string | null;
-};
+import type { Person } from "@/lib/types";
 
 type Props = {
   persons: Person[];

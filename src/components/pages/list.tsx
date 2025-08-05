@@ -95,11 +95,9 @@ export function List() {
                 0
               );
 
-              const isDummy = item.id === "haziran-2025";
-              const groupName = isDummy
-                ? "Arnavutköy"
-                : item.groups[0]?.name ?? "-";
-
+              const isDummy = item.id === "2025-haziran";
+              const groupName = item.id === "2025-haziran" ? "Arnavutköy" : item.groups[0]?.name ?? "-";
+              
               return (
                 <TableRow key={item.id}>
                   <TableCell>{item.name}</TableCell>

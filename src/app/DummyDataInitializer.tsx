@@ -1,18 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
-import draws from "@/../public/mock_draws.json";
+import mockData from "@/data/mock_draws.json";
 
 export default function DummyDataInitializer() {
   useEffect(() => {
-    const isAlreadySet = localStorage.getItem("draw");
-    if (isAlreadySet) {
-      console.log("ℹDummy data zaten yüklü.");
-      return;
-    }
+    const existing = localStorage.getItem("draw");
 
-    localStorage.setItem("draw", JSON.stringify(draws));
-    console.log("Dummy data localStorage'a yüklendi.");
+    if (!existing) {
+      localStorage.setItem("draw", JSON.stringify(mockData));
+    }
   }, []);
 
   return null;
