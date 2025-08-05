@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
+
 import {
   Table,
   TableBody,
@@ -106,13 +108,11 @@ export function List() {
                     {totalApartments} daire / {totalPersons} kişi
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      onClick={() => router.push(`/draw/${item.id}`)}
-                    >
-                      Detaya Git{" "}
-                      <ChevronRightIcon className="ml-1 h-4 w-4" />
-                    </Button>
+                  <Link
+                 href={`/draw/${item.id}`}
+                 className="inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hover:bg-accent"
+                 > Detaya Git <ChevronRightIcon className="ml-1 h-4 w-4" />
+                 </Link>
                   </TableCell>
                   <TableCell>
                     <Dialog>

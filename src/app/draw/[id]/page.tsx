@@ -8,6 +8,7 @@ import GroupSelector from "@/components/group/GroupSelector";
 import PersonSelector from "@/components/person/PersonSelector";
 import ApartmentSelector from "@/components/apartment/ApartmentSelector";
 import { parseApartmentString } from "@/utils/parseApartmentString";
+import Link from "next/link"; 
 
 import type { Draw, Group } from "@/lib/types";
 
@@ -44,13 +45,11 @@ export default function DrawDetail() {
   return (
     <div className="container mx-auto px-4 py-6 max-w-screen-xl">
       <div className="mb-4">
-        <Button
-          variant="ghost"
-          onClick={() => router.back()}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft size={16} /> Geri
-        </Button>
+      <Link
+       href="/"
+       className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hover:bg-accent">
+       <ArrowLeft size={16} /> Geri
+      </Link>
       </div>
 
       <h1 className="text-2xl font-bold mb-2">{draw.name}</h1>
