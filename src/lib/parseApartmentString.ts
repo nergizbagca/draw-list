@@ -1,17 +1,14 @@
-import type { Apartment } from "@/lib/types";
+import { ApartmentParsed } from "@/lib/types";
 
-export function parseApartmentString(str: string): Apartment {
-  const parts = str.split(" - ");
-  const block = parts[0] || "";
-  const type = parts[1] || "";
-  const rest = parts[2] || "";
+export function parseApartmentString(str: string): ApartmentParsed {
+  const [blockPart, typePart, floorPart, facadePart] = str.split(" - ");
 
-  const match = rest.match(/^(\d+\.?KAT) - \((.+)\)$/); 
-  const floor = match?.[1] || "";
-  const facade = match?.[2] || "";
+  const block = blockPart.trim(); 
+  const type = typePart.trim(); 
+  const floor = floorPart.trim(); 
+  const facade = facadePart?.replace("(", "").replace(")", "").trim();
 
-  const codeMatch = type.match(/([A-Z])$/); 
-  const code = codeMatch?.[1] || "";
+  const code = type.split(" ")[1] || type;
 
   return {
     id: `${block}-${floor}-${code}`,

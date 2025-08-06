@@ -1,45 +1,35 @@
 "use client";
 
-import React from "react";
-import type { Group } from "@/lib/types"; 
+import { Group } from "@/lib/types";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import clsx from "clsx";
 
 type Props = {
   groups: Group[];
-  onSelect: (group: Group) => void;
-  selectedGroupId?: string;
+  selectedGroupId: string;
+  onSelectGroup: (groupId: string) => void;
 };
 
-export default function GroupSelector({
-  groups,
-  onSelect,
-  selectedGroupId,
-}: Props) {
+export default function GroupSelector({ groups, selectedGroupId, onSelectGroup }: Props) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
-      {groups.map((group) => {
-        const matched = group.matches?.length || 0;
-        const total = group.persons.length;
-        const remaining = total - matched;
-
-        const displayName = group.name.replace(/blok/i, "Daire");
-
-        return (
-          <div
-            key={group.id}
-            className={`cursor-pointer rounded border p-4 transition-all ${
-              selectedGroupId === group.id
-                ? "border-blue-500 bg-blue-100"
-                : "border-gray-200 hover:bg-gray-50"
-            }`}
-            onClick={() => onSelect(group)}
-          >
-            <h3 className="text-lg font-semibold">{displayName}</h3>
-            <p>Toplam: {total}</p>
-            <p>Eşleştirilen: {matched}</p>
-            <p>Kalan: {remaining}</p>
-          </div>
-        );
-      })}
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+      {groups.map((group) => (
+        <Card
+          key={group.id}
+          onClick={() => onSelectGroup(group.id)}
+          className={clsx(
+            "cursor-pointer transition-colors border-2",
+            group.id === selectedGroupId
+              ? "border-blue-500 bg-blue-50"
+              : "hover:border-blue-300"
+          )}
+        >
+          <CardHeader className="p-3 text-sm font-medium">{group.name}</CardHeader>
+          <CardContent className="p-3 text-xs text-muted-foreground">
+            {group.apartments.length} daire / {group.persons.length} kişi
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }

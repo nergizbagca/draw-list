@@ -25,16 +25,21 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
+type Person = {
+  id: string;
+  fullName: string;
+};
+
 type Draw = {
   id: string;
   name: string;
   groups: {
-    id: string;
     name: string;
-    persons: string[];
+    persons: Person[];
     apartments: string[];
   }[];
 };
+
 
 export function List() {
   const [draws, setDraws] = useState<Draw[]>([]);
@@ -43,7 +48,7 @@ export function List() {
   const router = useRouter();
 
   useEffect(() => {
-    const storedDraws = localStorage.getItem("draw");
+    const storedDraws = localStorage.getItem("draws");
     if (storedDraws) {
       try {
         const parsedDraws = JSON.parse(storedDraws) as Draw[];
@@ -58,7 +63,7 @@ export function List() {
   const handleDelete = (id: string) => {
     const updated = draws.filter((item) => item.id !== id);
     setDraws(updated);
-    localStorage.setItem("draw", JSON.stringify(updated));
+    localStorage.setItem("draws", JSON.stringify(updated));
   };
 
   const handleAddClick = () => {
@@ -97,9 +102,9 @@ export function List() {
                 0
               );
 
-              const isDummy = item.id === "2025-haziran";
-              const groupName = item.id === "2025-haziran" ? "Arnavutköy" : item.groups[0]?.name ?? "-";
-              
+              const isDummy = item.id === "haziran-2025";
+              const groupName = isDummy ? "Arnavutköy" : item.groups[0]?.name ?? "-";
+            
               return (
                 <TableRow key={item.id}>
                   <TableCell>{item.name}</TableCell>

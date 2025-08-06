@@ -6,35 +6,42 @@ export type Option = {
 export type Person = {
   id: string;
   fullName: string;
+  apartment?: ApartmentParsed | null;
 };
 
-export type Apartment = {
+export type Apartment = string;
+
+export type ApartmentParsed = {
   id: string;
   block: string;
   floor: string;
   type: string;
   code: string;
   facade: string;
-  raw: string;
+  raw: string; 
 };
-
-export type ParsedApartment = Omit<Apartment, "raw">;
 
 export type Match = {
   person: string;
   apartment: string;
 };
 
-export type Group = {
+export interface Group {
   id: string;
   name: string;
-  persons: string[];
-  apartments: string[];
+  persons: Person[];
+  apartments: Apartment[]; 
   matches?: Match[];
-};
+}
 
 export type Draw = {
   id: string;
   name: string;
   groups: Group[];
+};
+
+export type MergedPerson = {
+  id: string;
+  fullName: string;
+  apartment?: ApartmentParsed | null;
 };

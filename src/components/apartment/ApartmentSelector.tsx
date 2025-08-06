@@ -1,69 +1,68 @@
-import { useMemo, useState } from "react";
-import { Apartment } from "@/lib/types";
+"use client";
+
+import { useState, useMemo } from "react";
+import { ApartmentParsed } from "@/lib/types";
+import { Input } from "@/components/ui/input"; 
 
 type Props = {
-  apartments: Apartment[];
-  onSelect: (apartment: Apartment) => void;
+  apartments: ApartmentParsed[];
+  onSelect?: (apartment: ApartmentParsed | null) => void;
 };
 
 export default function ApartmentSelector({ apartments, onSelect }: Props) {
-  const [search, setSearch] = useState("");
-  const [selectedBlock, setSelectedBlock] = useState("");
-  const [selectedFloor, setSelectedFloor] = useState("");
-  const [selectedFacade, setSelectedFacade] = useState("");
-
-  const customFloorSort = (a: string, b: string) => {
-    const normalize = (s: string) => {
-      if (s.toLowerCase().includes("zemin")) return 0;
-      const num = parseInt(s);
-      return isNaN(num) ? 999 : num;
-    };
-    return normalize(a) - normalize(b);
-  };
+  const [blockFilter, setBlockFilter] = useState("");
+  const [floorFilter, setFloorFilter] = useState("");
+  const [facadeFilter, setFacadeFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selected, setSelected] = useState<ApartmentParsed | null>(null);
 
   const blocks = useMemo(
-    () => [...new Set(apartments.map((a) => a.block).filter(Boolean))].sort(),
+    () => Array.from(new Set(apartments.map((a) => a.block))),
     [apartments]
   );
-
   const floors = useMemo(
-    () => [...new Set(apartments.map((a) => a.floor).filter(Boolean))].sort(customFloorSort),
+    () => Array.from(new Set(apartments.map((a) => a.floor))),
     [apartments]
   );
-
   const facades = useMemo(
-    () =>
-      [...new Set(apartments.map((a) => a.facade).filter(Boolean))].sort((a, b) =>
-        a.localeCompare(b, "tr")
-      ),
+    () => Array.from(new Set(apartments.map((a) => a.facade))),
     [apartments]
   );
 
   const filtered = useMemo(() => {
-    return apartments.filter((a) => {
-      const matchesSearch = a.raw.toLowerCase().includes(search.toLowerCase());
-      const matchesBlock = selectedBlock ? a.block === selectedBlock : true;
-      const matchesFloor = selectedFloor ? a.floor === selectedFloor : true;
-      const matchesFacade = selectedFacade ? a.facade === selectedFacade : true;
-      return matchesSearch && matchesBlock && matchesFloor && matchesFacade;
-    });
-  }, [apartments, search, selectedBlock, selectedFloor, selectedFacade]);
+    return apartments
+      .filter(
+        (a) =>
+          (!blockFilter || a.block === blockFilter) &&
+          (!floorFilter || a.floor === floorFilter) &&
+          (!facadeFilter || a.facade === facadeFilter)
+      )
+      .filter((a) => {
+        const values = Object.values(a).join(" ").toLowerCase();
+        return values.includes(searchQuery.toLowerCase());
+      });
+  }, [apartments, blockFilter, floorFilter, facadeFilter, searchQuery]);
+
+  const handleSelect = (a: ApartmentParsed) => {
+    const newSelected = a.id === selected?.id ? null : a;
+    setSelected(newSelected);
+    onSelect?.(newSelected);
+  };
 
   return (
-    <div>
-      <h2 className="text-lg font-semibold mb-2">Daire Seç</h2>
-      <input
-        type="text"
+    <div className="space-y-4">
+      <Input
         placeholder="Daire ara..."
-        className="border px-2 py-1 rounded w-full mb-2"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="w-full"
       />
-      <div className="flex gap-2 mb-2">
+
+      <div className="flex flex-wrap gap-2">
         <select
-          className="border px-2 py-1 rounded"
-          value={selectedBlock}
-          onChange={(e) => setSelectedBlock(e.target.value)}
+          value={blockFilter}
+          onChange={(e) => setBlockFilter(e.target.value)}
+          className="border p-2 rounded"
         >
           <option value="">Blok</option>
           {blocks.map((b) => (
@@ -72,10 +71,11 @@ export default function ApartmentSelector({ apartments, onSelect }: Props) {
             </option>
           ))}
         </select>
+
         <select
-          className="border px-2 py-1 rounded"
-          value={selectedFloor}
-          onChange={(e) => setSelectedFloor(e.target.value)}
+          value={floorFilter}
+          onChange={(e) => setFloorFilter(e.target.value)}
+          className="border p-2 rounded"
         >
           <option value="">Kat</option>
           {floors.map((f) => (
@@ -84,10 +84,11 @@ export default function ApartmentSelector({ apartments, onSelect }: Props) {
             </option>
           ))}
         </select>
+
         <select
-          className="border px-2 py-1 rounded"
-          value={selectedFacade}
-          onChange={(e) => setSelectedFacade(e.target.value)}
+          value={facadeFilter}
+          onChange={(e) => setFacadeFilter(e.target.value)}
+          className="border p-2 rounded"
         >
           <option value="">Cephe</option>
           {facades.map((c) => (
@@ -98,17 +99,34 @@ export default function ApartmentSelector({ apartments, onSelect }: Props) {
         </select>
       </div>
 
-      <ul className="border rounded p-2 max-h-64 overflow-y-auto">
-        {filtered.map((a) => (
-          <li
-            key={a.id}
-            className="p-1 cursor-pointer hover:bg-gray-100"
-            onClick={() => onSelect(a)}
-          >
-            {a.raw}
-          </li>
-        ))}
-      </ul>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {filtered.map((a) => {
+          const isSelected = selected?.id === a.id;
+          return (
+            <button
+              key={a.id}
+              onClick={() => handleSelect(a)}
+              className={`p-3 border rounded text-left hover:bg-accent transition ${
+                isSelected ? "bg-accent" : ""
+              }`}
+            >
+              <div className="text-sm font-medium">Daire</div>
+              <div className="text-xs text-muted-foreground">
+                {a.block} - {a.floor} - {a.facade}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {selected && (
+        <div className="mt-4 p-3 border rounded">
+          <div className="text-sm font-semibold">Seçilen Daire</div>
+          <div className="text-sm">
+            {selected.block} - {selected.floor} - {selected.facade}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
