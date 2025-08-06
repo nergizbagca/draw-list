@@ -1,132 +1,141 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
 import { ApartmentParsed } from "@/lib/types";
-import { Input } from "@/components/ui/input"; 
 
 type Props = {
   apartments: ApartmentParsed[];
-  onSelect?: (apartment: ApartmentParsed | null) => void;
 };
 
-export default function ApartmentSelector({ apartments, onSelect }: Props) {
-  const [blockFilter, setBlockFilter] = useState("");
-  const [floorFilter, setFloorFilter] = useState("");
-  const [facadeFilter, setFacadeFilter] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selected, setSelected] = useState<ApartmentParsed | null>(null);
+export default function ApartmentSelector({ apartments }: Props) {
+  const [search, setSearch] = useState("");
+  const [selectedBlock, setSelectedBlock] = useState("Tümü");
+  const [selectedFloor, setSelectedFloor] = useState("Tümü");
+  const [selectedFacade, setSelectedFacade] = useState("Tümü");
+  const [selectedApartment, setSelectedApartment] =
+    useState<ApartmentParsed | null>(null);
 
   const blocks = useMemo(
-    () => Array.from(new Set(apartments.map((a) => a.block))),
+    () => ["Tümü", ...Array.from(new Set(apartments.map((a) => a.block)))],
     [apartments]
   );
   const floors = useMemo(
-    () => Array.from(new Set(apartments.map((a) => a.floor))),
+    () => ["Tümü", ...Array.from(new Set(apartments.map((a) => a.floor)))],
     [apartments]
   );
   const facades = useMemo(
-    () => Array.from(new Set(apartments.map((a) => a.facade))),
+    () => ["Tümü", ...Array.from(new Set(apartments.map((a) => a.facade)))],
     [apartments]
   );
 
   const filtered = useMemo(() => {
-    return apartments
-      .filter(
-        (a) =>
-          (!blockFilter || a.block === blockFilter) &&
-          (!floorFilter || a.floor === floorFilter) &&
-          (!facadeFilter || a.facade === facadeFilter)
-      )
-      .filter((a) => {
-        const values = Object.values(a).join(" ").toLowerCase();
-        return values.includes(searchQuery.toLowerCase());
-      });
-  }, [apartments, blockFilter, floorFilter, facadeFilter, searchQuery]);
+    return apartments.filter(
+      (a) =>
+        a.raw.toLowerCase().includes(search.toLowerCase()) &&
+        (selectedBlock === "Tümü" || a.block === selectedBlock) &&
+        (selectedFloor === "Tümü" || a.floor === selectedFloor) &&
+        (selectedFacade === "Tümü" || a.facade === selectedFacade)
+    );
+  }, [apartments, search, selectedBlock, selectedFloor, selectedFacade]);
 
-  const handleSelect = (a: ApartmentParsed) => {
-    const newSelected = a.id === selected?.id ? null : a;
-    setSelected(newSelected);
-    onSelect?.(newSelected);
-  };
+  useEffect(() => {
+    setSelectedApartment(null);
+  }, [selectedBlock, selectedFloor, selectedFacade]);
 
   return (
-    <div className="space-y-4">
+    <Card className="p-4 w-full">
+      <h3 className="text-lg font-semibold mb-2">Daire Seçimi</h3>
+
       <Input
         placeholder="Daire ara..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="w-full"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="mb-2"
       />
 
-      <div className="flex flex-wrap gap-2">
-        <select
-          value={blockFilter}
-          onChange={(e) => setBlockFilter(e.target.value)}
-          className="border p-2 rounded"
-        >
-          <option value="">Blok</option>
-          {blocks.map((b) => (
-            <option key={b} value={b}>
-              {b}
-            </option>
-          ))}
-        </select>
+      <div className="flex gap-2 mb-4">
+        <Select onValueChange={(val) => setSelectedBlock(val)} value={selectedBlock}>
+          <SelectTrigger className="w-[120px]">
+            <SelectValue placeholder="Blok" />
+          </SelectTrigger>
+          <SelectContent>
+            {blocks.map((block) => (
+              <SelectItem key={block} value={block}>
+                {block}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        <select
-          value={floorFilter}
-          onChange={(e) => setFloorFilter(e.target.value)}
-          className="border p-2 rounded"
-        >
-          <option value="">Kat</option>
-          {floors.map((f) => (
-            <option key={f} value={f}>
-              {f}
-            </option>
-          ))}
-        </select>
+        <Select onValueChange={(val) => setSelectedFloor(val)} value={selectedFloor}>
+          <SelectTrigger className="w-[120px]">
+            <SelectValue placeholder="Kat" />
+          </SelectTrigger>
+          <SelectContent>
+            {floors.map((floor) => (
+              <SelectItem key={floor} value={floor}>
+                {floor}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        <select
-          value={facadeFilter}
-          onChange={(e) => setFacadeFilter(e.target.value)}
-          className="border p-2 rounded"
-        >
-          <option value="">Cephe</option>
-          {facades.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
+        <Select onValueChange={(val) => setSelectedFacade(val)} value={selectedFacade}>
+          <SelectTrigger className="w-[120px]">
+            <SelectValue placeholder="Cephe" />
+          </SelectTrigger>
+          <SelectContent>
+            {facades.map((facade) => (
+              <SelectItem key={facade} value={facade}>
+                {facade}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {filtered.map((a) => {
-          const isSelected = selected?.id === a.id;
-          return (
-            <button
-              key={a.id}
-              onClick={() => handleSelect(a)}
-              className={`p-3 border rounded text-left hover:bg-accent transition ${
-                isSelected ? "bg-accent" : ""
-              }`}
-            >
-              <div className="text-sm font-medium">Daire</div>
-              <div className="text-xs text-muted-foreground">
-                {a.block} - {a.floor} - {a.facade}
-              </div>
-            </button>
-          );
-        })}
+      <div className="flex flex-col gap-2 max-h-[250px] overflow-auto">
+        {filtered.map((a, i) => (
+          <button
+            key={i}
+            onClick={() => {
+              if (selectedApartment?.id === a.id) {
+                setSelectedApartment(null);
+                setSelectedBlock("Tümü");
+                setSelectedFloor("Tümü");
+                setSelectedFacade("Tümü");
+              } else {
+                setSelectedApartment(a);
+              }
+            }}
+            className={`text-left p-2 rounded border ${
+              selectedApartment?.id === a.id
+                ? "bg-blue-100 border-blue-400"
+                : "hover:bg-gray-100"
+            }`}
+          >
+            <strong>Daire:</strong> {a.block} - {a.floor} - {a.facade}
+          </button>
+        ))}
+        {filtered.length === 0 && (
+          <p className="text-muted-foreground">Sonuç bulunamadı.</p>
+        )}
       </div>
 
-      {selected && (
-        <div className="mt-4 p-3 border rounded">
-          <div className="text-sm font-semibold">Seçilen Daire</div>
-          <div className="text-sm">
-            {selected.block} - {selected.floor} - {selected.facade}
-          </div>
+      {selectedApartment && (
+        <div className="mt-4">
+          <strong>Seçilen Daire:</strong> {selectedApartment.block} - {selectedApartment.floor} - {selectedApartment.facade}
         </div>
       )}
-    </div>
+    </Card>
   );
 }

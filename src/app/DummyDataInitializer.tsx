@@ -19,9 +19,11 @@ export default function DummyDataInitializer() {
       };
 
       localStorage.setItem("draws", JSON.stringify([dataWithGroupIds]));
+
+      const key = mockData.name.toLowerCase().replace(/\s+/g, "-"); 
+      localStorage.setItem(key, JSON.stringify(dataWithGroupIds));
     }
   }, []);
 
   return null;
 }
-

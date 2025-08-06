@@ -1,17 +1,26 @@
-import { Draw } from "@/lib/types";
+import { Draw } from "./types";
 
-export function getAllDraws(): Draw[] {
-  const stored = localStorage.getItem("draws");
+const STORAGE_KEY = "draws";
+
+export function getDrawsFromStorage(): Draw[] {
+  if (typeof window === "undefined") return [];
+  const stored = localStorage.getItem(STORAGE_KEY);
   return stored ? JSON.parse(stored) : [];
 }
 
-export function getDrawFromStorage(id: string): Draw | null {
-  const draws = getAllDraws();
-  return draws.find((d) => d.id === id) ?? null;
+export function getDrawFromStorage(id: string): Draw | undefined {
+  return getDrawsFromStorage().find((d: Draw) => d.id === id);
 }
 
-export function saveDrawToStorage(updated: Draw) {
-  const draws = getAllDraws();
-  const newDraws = draws.map((d) => (d.id === updated.id ? updated : d));
-  localStorage.setItem("draws", JSON.stringify(newDraws));
+export function saveDrawsToStorage(draws: Draw[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(draws));
+}
+
+export function updateDrawInStorage(updatedDraw: Draw) {
+  const draws = getDrawsFromStorage();
+  const index = draws.findIndex((d: Draw) => d.id === updatedDraw.id);
+  if (index !== -1) {
+    draws[index] = updatedDraw;
+    saveDrawsToStorage(draws);
+  }
 }

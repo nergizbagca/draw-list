@@ -3,8 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Apartment } from "@/lib/types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 type Props = {
   apartments: string[];
@@ -37,7 +42,10 @@ function parseApartmentString(str: string): ParsedApartment {
 }
 
 export function ApartmentFilter({ apartments, onSelect }: Props) {
-  const parsedApartments = useMemo(() => apartments.map(parseApartmentString), [apartments]);
+  const parsedApartments = useMemo(
+    () => apartments.map(parseApartmentString),
+    [apartments]
+  );
 
   const [searchTerm, setSearchTerm] = useState("");
   const [blockFilter, setBlockFilter] = useState("");
@@ -74,7 +82,7 @@ export function ApartmentFilter({ apartments, onSelect }: Props) {
               <SelectValue placeholder="Blok seç" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Hepsi</SelectItem>
+              <SelectItem value="">Tümü</SelectItem>
               {uniqueBlocks.map((block) => (
                 <SelectItem key={block} value={block}>
                   {block}
@@ -91,7 +99,7 @@ export function ApartmentFilter({ apartments, onSelect }: Props) {
               <SelectValue placeholder="Kat seç" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Hepsi</SelectItem>
+              <SelectItem value="">Tümü</SelectItem>
               {uniqueFloors.map((floor) => (
                 <SelectItem key={floor} value={floor}>
                   {floor}
@@ -108,7 +116,7 @@ export function ApartmentFilter({ apartments, onSelect }: Props) {
               <SelectValue placeholder="Cephe seç" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Hepsi</SelectItem>
+              <SelectItem value="">Tümü</SelectItem>
               {uniqueFacades.map((facade) => (
                 <SelectItem key={facade} value={facade}>
                   {facade}
@@ -123,7 +131,9 @@ export function ApartmentFilter({ apartments, onSelect }: Props) {
         {filteredApartments.map((apt) => (
           <li
             key={apt.id}
-            onClick={() => onSelect(apt.id)}
+            onClick={() =>
+              onSelect(`${apt.block}, ${apt.floor}, ${apt.facade}`) 
+            }
             className="cursor-pointer hover:bg-gray-100 rounded px-2 py-1"
           >
             {apt.id}

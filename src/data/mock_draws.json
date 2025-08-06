@@ -1,6 +1,7 @@
 {
   "id": "haziran-2025",
   "name": "Haziran 2025",
+
   "groups": [
     {
       "name": "2+1 A Blok",
@@ -15,10 +16,6 @@
         { "id": "kemal-unal", "fullName": "Kemal Ünal" },
         { "id": "ilker-ay", "fullName": "İlker Ay" },
         { "id": "necla-yurt", "fullName": "Necla Yurt" },
-        { "id": "cemal-dal", "fullName": "Cemal Dal" },
-        { "id": "serpil-can", "fullName": "Serpil Can" },
-        { "id": "volkan-aslan", "fullName": "Volkan Aslan" },
-        { "id": "hatice-kaya", "fullName": "Hatice Kaya" },
         { "id": "murat-esen", "fullName": "Murat Esen" },
         { "id": "selma-dogan", "fullName": "Selma Doğan" },
         { "id": "ahmet-guler", "fullName": "Ahmet Güler" },
@@ -55,8 +52,6 @@
         { "id": "elif-ak", "fullName": "Elif Ak" },
         { "id": "tuncay-erdem", "fullName": "Tuncay Erdem" },
         { "id": "asuman-bay", "fullName": "Asuman Bay" },
-        { "id": "okan-can", "fullName": "Okan Can" },
-        { "id": "selin-kurt", "fullName": "Selin Kurt" },
         { "id": "nadir-oz", "fullName": "Nadir Öz" },
         { "id": "sibel-bora", "fullName": "Sibel Bora" },
         { "id": "yasar-gok", "fullName": "Yaşar Gök" },
@@ -137,7 +132,6 @@
         { "id": "nazan-dogan", "fullName": "Nazan Doğan" },
         { "id": "mehmet-kar", "fullName": "Mehmet Kar" },
         { "id": "mustafa-oz", "fullName": "Mustafa Öz" },
-        { "id": "meryem-gul", "fullName": "Meryem Gül" },
         { "id": "taha-arslan", "fullName": "Taha Arslan" },
         { "id": "hilal-demir", "fullName": "Hilal Demir" },
         { "id": "furkan-sari", "fullName": "Furkan Sarı" },

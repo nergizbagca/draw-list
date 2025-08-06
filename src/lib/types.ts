@@ -22,8 +22,13 @@ export type ApartmentParsed = {
 };
 
 export type Match = {
-  person: string;
-  apartment: string;
+  person: {
+    id: string;
+    fullName: string;
+  };
+  apartment: {
+    raw: string;
+  };
 };
 
 export interface Group {
@@ -44,4 +49,10 @@ export type MergedPerson = {
   id: string;
   fullName: string;
   apartment?: ApartmentParsed | null;
+};
+
+export type CombinedPerson = {
+  name: string;
+  apartment: string | null;
+  persons: Person[];
 };

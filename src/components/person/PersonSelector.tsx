@@ -1,125 +1,100 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Person } from "@/lib/types";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import MergePersonsModal from "./MergePersonModal";
+import clsx from "clsx";
 
-type Props = {
+interface Props {
   persons: Person[];
-  onMerge: (mergedPerson: Person) => void;
-  selectedPersonIds: string[];
-  onSelectPerson: (id: string) => void;
-};
+  selectedPerson: Person | null;
+  onSelectPerson: (person: Person | null) => void;
+  onCombine: (selected: Person[], mergedName: string) => void;
+  searchTerm: string;
+  onSearchTermChange: (value: string) => void;
+}
 
 export default function PersonSelector({
   persons,
-  onMerge,
-  selectedPersonIds,
+  selectedPerson,
   onSelectPerson,
+  onCombine,
+  searchTerm,
+  onSearchTermChange,
 }: Props) {
-  const [search, setSearch] = useState("");
+  const [selectedForMerge, setSelectedForMerge] = useState<Person[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const toggleSelection = (id: string) => {
-    onSelectPerson(id);
+  const togglePersonSelect = (person: Person) => {
+    const alreadySelected = selectedForMerge.some((p) => p.id === person.id);
+    const newSelected = alreadySelected
+      ? selectedForMerge.filter((p) => p.id !== person.id)
+      : [...selectedForMerge, person];
+
+    setSelectedForMerge(newSelected);
+
+    if (selectedPerson?.id === person.id) {
+      onSelectPerson(null);
+    } else {
+      onSelectPerson(person);
+    }
   };
 
-  const handleMerge = () => {
-    if (selectedPersonIds.length < 2) return;
-
-    const selectedPersons = persons.filter((p) =>
-      selectedPersonIds.includes(p.id)
-    );
-
-    const mergedName = selectedPersons.map((p) => p.fullName).join(" / ");
-
-    const mergedPerson: Person = {
-      id: Date.now().toString(),
-      fullName: mergedName,
-      apartment: null,
-    };
-
-    onMerge(mergedPerson);
+  const handleCancelMerge = () => {
+    setSelectedForMerge([]);
+    onSelectPerson(null);
     setIsModalOpen(false);
   };
 
-  const filteredPersons = persons.filter((p) =>
-    p.fullName.toLowerCase().includes(search.toLowerCase())
-  );
-
   return (
-    <div className="border rounded-xl p-4 space-y-4 bg-white shadow-md">
+    <div className="space-y-2">
       <Input
         placeholder="Kişi ara..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full"
+        value={searchTerm}
+        onChange={(e) => onSearchTermChange(e.target.value)}
       />
 
-      <ScrollArea className="h-[300px] pr-2">
-        <ul className="space-y-2">
-          {filteredPersons.map((person) => (
-            <li
-              key={person.id}
-              className="flex items-center justify-between border p-2 rounded-md"
-            >
-              <div>
-                <p className="font-medium">{person.fullName}</p>
-                <p className="text-xs text-gray-500">ID: {person.id}</p>
-              </div>
-              <Checkbox
-                checked={selectedPersonIds.includes(person.id)}
-                onCheckedChange={() => toggleSelection(person.id)}
-              />
-            </li>
-          ))}
-        </ul>
-      </ScrollArea>
-
-      <Button
-        variant="outline"
-        onClick={() => setIsModalOpen(true)}
-        disabled={selectedPersonIds.length < 2}
-      >
-        Kişi Birleştir
-      </Button>
-
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Birleştirilecek Kişiler</DialogTitle>
-          </DialogHeader>
-
-          <ul className="space-y-2 max-h-[200px] overflow-y-auto">
-            {persons
-              .filter((p) => selectedPersonIds.includes(p.id))
-              .map((person) => (
-                <li
-                  key={person.id}
-                  className="text-sm border p-2 rounded-md bg-gray-100"
-                >
-                  {person.fullName}
-                </li>
-              ))}
-          </ul>
-
-          <div className="flex justify-end space-x-2 mt-4">
-            <Button variant="ghost" onClick={() => setIsModalOpen(false)}>
-              İptal
-            </Button>
-            <Button onClick={handleMerge}>Birleştir</Button>
+      <div className="max-h-64 overflow-y-auto border rounded p-2 space-y-1">
+        {persons.map((person) => (
+          <div
+            key={person.id}
+            className={clsx(
+              "p-2 rounded cursor-pointer border transition-colors",
+              selectedForMerge.some((p) => p.id === person.id)
+                ? "bg-blue-100 border-blue-500 text-black"
+                : "hover:bg-gray-100"
+            )}
+            onClick={() => togglePersonSelect(person)}
+          >
+            <div className="font-medium">{person.fullName}</div>
+            <div className="text-xs text-gray-500">{person.id}</div>
           </div>
-        </DialogContent>
-      </Dialog>
+        ))}
+      </div>
+
+      <div className="pt-2">
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={() => setIsModalOpen(true)}
+          disabled={selectedForMerge.length < 2}
+        >
+          Kişi Birleştir
+        </Button>
+      </div>
+
+      <MergePersonsModal
+        isOpen={isModalOpen}
+        selectedPersons={selectedForMerge}
+        onClose={() => setIsModalOpen(false)}
+        onCancel={handleCancelMerge}
+        onMerge={(mergedName) => {
+          onCombine(selectedForMerge, mergedName);
+          setSelectedForMerge([]);
+          onSelectPerson(null);
+          setIsModalOpen(false);
+        }}
+      />
     </div>
   );
 }
